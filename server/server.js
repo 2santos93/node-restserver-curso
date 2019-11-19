@@ -1,29 +1,23 @@
 require("./config/config");
 const express = require('express');
-const app = express();
 const bodyParser = require('body-parser');
+const mongoose = require("mongoose");
+
+const app = express();
 
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
+app.use(require("./routes/users"));
 
+mongoose.connect(process.env.URLDB, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+    useFindAndModify: false
+  }, (err, res) => {
+    if(err) throw err;
 
-app.get('/usuario', (req, res) => {
-    res.json("get usuario");
-});
-
-app.post('/usuario', (req, res) => {
-
-    const body = req.body;
-
-    res.json(body);
-});
-
-app.put('/usuario/:id', (req, res) => {
-    res.json("get usuario");
-});
-
-app.delete('/usuario/:id', (req, res) => {
-    res.json("get usuario");
+    console.log("DB ONLINE")
 });
 
 app.listen(process.env.PORT, () => {
