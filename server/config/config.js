@@ -10,7 +10,7 @@ let url;
 if(process.env.NODE_ENV === 'dev'){
     url = "mongodb://localhost:27017/test";
 }else{
-    url = "mongodb+srv://ncaicedo:291293@test-d2o7t.mongodb.net/test";
+    url = process.env.MONGO_URI;
 }
 
 process.env.URLDB = url;
