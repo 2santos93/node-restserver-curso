@@ -20,7 +20,7 @@ let userSchema = new Schema({
     password:{
         type: [String, "password will be string"],
         required: true,
-        select: false
+        // select: false
     },
     img:{
         type: [String, "img will be string"],
@@ -40,6 +40,14 @@ let userSchema = new Schema({
         default: false
     },
 });
+
+userSchema.methods.toJSON = function(){
+    let user = this;
+    let userObject = user.toObject();
+    delete userObject.password;
+
+    return userObject;
+}
 
 userSchema.plugin(uniqueValidator, { message: '{PATH} debe de ser unico' });
 

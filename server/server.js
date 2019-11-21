@@ -7,7 +7,10 @@ const app = express();
 
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
-app.use(require("./routes/users"));
+
+app.use(require('./routes/index'));
+
+// routes modules
 
 mongoose.connect(process.env.URLDB, {
     useNewUrlParser: true,
