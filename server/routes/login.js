@@ -1,6 +1,9 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const {OAuth2Client} = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
 const app = express();
 const User = require('../models/user');
 
@@ -32,7 +35,7 @@ app.post("/login", (req, res) => {
             
         }
 
-        const token = jwt.sign({user}, process.env.SEED_TOKEN, {expiresIn: process.env.EXPIRE_TOKEN});
+        const token = generateToken(user);
 
         res.json({
             ok: true,
@@ -43,5 +46,90 @@ app.post("/login", (req, res) => {
      });
     
 });
+
+app.post("/google", async(req, res) => {
+
+    let token = req.body.idtoken;
+
+    let googleUser = await verify(token).catch((err) => {
+        return res.status(403).json({
+            ok:false,
+            err
+        })
+    });
+
+    User.find({email:googleUser.email}, (err, userDB) => {
+
+        if(err){
+            return res.status(400).json({
+                ok: false,
+                err
+            });
+        }
+
+        if(userDB.lenght > 0){
+            if(!userDB.google){
+                return res.status(400).json({
+                    ok: false,
+                    message: "Use normal auth"
+                });
+            }
+
+            const token = generateToken(userDB);
+
+            res.json({
+                ok:true,
+                token
+            });
+
+        }else{
+
+            let userModel = new User({
+                name: googleUser.name,
+                google: true,
+                email: googleUser.email,
+                img: googleUser.img
+            });
+
+            userModel.save( (err) =>{
+                if(err){
+                    return res.status(400).json({
+                        ok:false,
+                        err
+                    })
+                }
+
+                let token = generateToken()
+
+                res.json({
+                    ok:true,
+                    token
+                })
+            });
+
+        }
+    });
+
+});
+
+// google config 
+async function verify(token) {
+    const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+
+    return {
+        name: payload.name,
+        email: payload.email,
+        img: payload.picture,
+        google: true
+    }
+  }
+// generate token server
+  function generateToken(user) {
+    return jwt.sign({user}, process.env.SEED_TOKEN, {expiresIn: process.env.EXPIRE_TOKEN});
+  }
 
 module.exports = app;
