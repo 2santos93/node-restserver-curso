@@ -19,7 +19,7 @@ if(process.env.NODE_ENV === 'dev'){
 process.env.URLDB = url;
 
 // expire token
-process.env.EXPIRE_TOKEN = 60 * 60 * 24 * 30;
+process.env.EXPIRE_TOKEN = '48h';
 
 // seed token
 process.env.SEED_TOKEN = process.env.SEED_TOKEN || "GokuEsMIdios";

@@ -5,7 +5,7 @@ let verifyToken = (req, res, next) => {
 
     const token = req.get("Authorization");
 
-    jwt.verify(token, process.env.SEED_TOKEN, (err, decoded) => {
+    jwt.verify(token, process.env.SEED_TOKEN, (err, payload) => {
 
         if(err){
             return res.status(401).json({
@@ -14,7 +14,7 @@ let verifyToken = (req, res, next) => {
             });
         }
         
-        req.user = decoded.user;
+        req.user = payload.user;
         
         next();
 
