@@ -35,7 +35,29 @@ let verifyRoleAdmin = (req, res, next) => {
 
 }
 
+let verifiyTokenUrl = (req, res, next) => {
+
+    const token = req.query.token;
+
+    jwt.verify(token, process.env.SEED_TOKEN, (err, payload) => {
+
+        if(err){
+            return res.status(401).json({
+                ok:false,
+                err
+            });
+        }
+        
+        req.user = payload.user;
+        
+        next();
+
+    });
+
+}
+
 module.exports = {
     verifyToken,
-    verifyRoleAdmin
+    verifyRoleAdmin,
+    verifiyTokenUrl
 }
